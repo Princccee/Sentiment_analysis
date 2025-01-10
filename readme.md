@@ -2,6 +2,8 @@
 
 This project focuses on performing sentiment analysis on phone call transcripts to determine whether the sentiment is positive or negative.
 
+![Sentiment Analysis](home.png)
+
 ## Project Structure
 
 ```
@@ -72,8 +74,8 @@ sentiment-analysis/
     ```
     This script will perform sentiment analysis on new phone call transcripts and output the sentiment (positive or negative). -->
 
-## Results
+<!-- ## Results
 
-The results of the sentiment analysis, including evaluation metrics, will be saved in the `results/` directory.
+The results of the sentiment analysis, including evaluation metrics, will be saved in the `results/` directory. -->
 
 
