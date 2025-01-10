@@ -11,10 +11,12 @@ if uploaded_file is not None:
 
     # Send to backend for analysis
     if st.button("Analyze Sentiment"):
+        # send the post request to the backend API
         response = requests.post(
             "http://127.0.0.1:5000/analyze", 
             files={"file": uploaded_file}
         )
+        
         if response.status_code == 200:
             st.write("Sentiment Analysis Result:")
             st.json(response.json())
