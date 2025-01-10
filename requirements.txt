@@ -1,0 +1,5 @@
+flask
+transformers
+strteamlit
+torch
+
