@@ -1,6 +1,8 @@
 # Sentiment Analysis on Phone Call Transcripts
 
-This project focuses on performing sentiment analysis on phone call transcripts to determine whether the sentiment is positive or negative.
+This project is a web-based application that performs sentiment analysis on uploaded call transcripts. Users can upload text files through a Streamlit-based UI, and the backend, powered by Flask, processes the files and returns sentiment analysis results.
+
+The app uses a pre-trained Hugging Face Transformer model to classify sentiments into Positive, Negative, or Neutral, along with corresponding sentiment scores.
 
 ![Sentiment Analysis](home.png)
 

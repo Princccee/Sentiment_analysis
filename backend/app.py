@@ -27,9 +27,11 @@ def analyze_sentiment():
     
     file = request.files["file"]
     content = file.read().decode("utf-8")
+    print("Received Transcript Content:", content)
     
     # Perform sentiment analysis
     result = sentiment_analyzer(content)
+    print("Sentiment Analysis Result:", result)
     return jsonify(result)
 
 if __name__ == "__main__":
