@@ -55,30 +55,3 @@ sentiment-analysis/
     ```sh
     streamlit run frontend/streamlit_app.py
     ```    
-
-
-<!-- ## Usage
-
-1. **Data Preprocessing**:
-    ```sh
-    python src/data_preprocessing.py
-    ```
-    This script will preprocess the raw phone call transcripts and save the processed data.
-
-2. **Model Training**:
-    ```sh
-    python src/model_training.py
-    ```
-    This script will train the sentiment analysis model using the processed data.
-
-3. **Sentiment Analysis**:
-    ```sh
-    python src/sentiment_analysis.py
-    ```
-    This script will perform sentiment analysis on new phone call transcripts and output the sentiment (positive or negative). -->
-
-<!-- ## Results
-
-The results of the sentiment analysis, including evaluation metrics, will be saved in the `results/` directory. -->
-
-
