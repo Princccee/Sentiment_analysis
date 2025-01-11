@@ -15,6 +15,8 @@ sentiment-analysis/
 |   └── demo.py    # to ananlyse the file locally on terminal
 ├── frontend
 │   └── streamlit_app.py
+├── uploads/
+├── Sentiment_analysis_report.pdf
 ├── readme.md
 ├── requirements.txt
 ├── .gitignore
