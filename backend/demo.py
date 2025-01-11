@@ -74,49 +74,49 @@ def extract_sentiment_lists(agent_sentiments, customer_sentiments):
         "customer": customer_sentiment_list
     }
 
-@app.route("/analyze", methods=["POST"])
-def analyze():
-    """API route for analyzing sentiment."""
-    try:
-        # Check if a file was uploaded
-        if "file" not in request.files:
-            return jsonify({"error": "No file uploaded"}), 400
+# @app.route("/analyze", methods=["POST"])
+# def analyze():
+#     """API route for analyzing sentiment."""
+#     try:
+#         # Check if a file was uploaded
+#         if "file" not in request.files:
+#             return jsonify({"error": "No file uploaded"}), 400
 
-        # Read the uploaded file
-        file = request.files["file"]
+#         # Read the uploaded file
+#         file = request.files["file"]
 
-        # Check if the file is empty
-        if file.filename == "":
-            return jsonify({"error": "Empty file"}), 400
+#         # Check if the file is empty
+#         if file.filename == "":
+#             return jsonify({"error": "Empty file"}), 400
 
-        # Read and decode the file
-        transcript = file.read().decode("utf-8").replace("\r\n", "\n")  # Normalize line breaks
-        print("Received Transcript Content:", transcript)  # Debug: Log raw content
+#         # Read and decode the file
+#         transcript = file.read().decode("utf-8").replace("\r\n", "\n")  # Normalize line breaks
+#         print("Received Transcript Content:", transcript)  # Debug: Log raw content
 
-        # Parse the transcript
-        conversation = preprocess_transcript(transcript)
-        print("Parsed Conversation:", conversation)  # Debug: Log parsed conversation
+#         # Parse the transcript
+#         conversation = preprocess_transcript(transcript)
+#         print("Parsed Conversation:", conversation)  # Debug: Log parsed conversation
 
-        # Return error if parsing failed
-        if not conversation:
-            return jsonify({"error": "Parsing failed. Ensure the file has the correct format."}), 400
+#         # Return error if parsing failed
+#         if not conversation:
+#             return jsonify({"error": "Parsing failed. Ensure the file has the correct format."}), 400
 
-        # Analyze sentiment
-        agent_sentiments, customer_sentiments = analyze_sentiment(conversation)
+#         # Analyze sentiment
+#         agent_sentiments, customer_sentiments = analyze_sentiment(conversation)
 
-        # Extract sentiment lists
-        sentiment_lists = extract_sentiment_lists(agent_sentiments, customer_sentiments)
+#         # Extract sentiment lists
+#         sentiment_lists = extract_sentiment_lists(agent_sentiments, customer_sentiments)
 
-        # Return the results
-        return jsonify({
-            "sales_agent_sentiments": agent_sentiments,
-            "customer_sentiments": customer_sentiments,
-            "sentiment_lists": sentiment_lists
-        })
+#         # Return the results
+#         return jsonify({
+#             "sales_agent_sentiments": agent_sentiments,
+#             "customer_sentiments": customer_sentiments,
+#             "sentiment_lists": sentiment_lists
+#         })
 
-    except Exception as e:
-        print(f"Error in /analyze route: {e}")  # Log the error
-        return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
+#     except Exception as e:
+#         print(f"Error in /analyze route: {e}")  # Log the error
+#         return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
 
 
 # Direct file input analysis for testing
