@@ -12,6 +12,7 @@ The app uses a pre-trained Hugging Face Transformer model to classify sentiments
 sentiment-analysis/
 ├── backend
 │   └── app.py
+|   └── demo.py    # to ananlyse the file locally on terminal
 ├── frontend
 │   └── streamlit_app.py
 ├── readme.md
