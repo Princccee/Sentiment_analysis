@@ -51,7 +51,7 @@ sentiment-analysis/
     ```
 5. Run the backend server:
     ```sh
-    python backend/app.py
+    flask run  # spin up the server
     ```
 6. Run the streamlit app in browser:
     ```sh
