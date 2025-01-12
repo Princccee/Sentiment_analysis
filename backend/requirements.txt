@@ -4,3 +4,4 @@ torch
 safetensors
 regex
 gunicorn
+flask-cors

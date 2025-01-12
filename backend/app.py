@@ -1,9 +1,11 @@
 import os
 from flask import Flask, request, jsonify
 from transformers import pipeline
+from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Directory to store uploaded files
 UPLOAD_FOLDER = "uploads"
