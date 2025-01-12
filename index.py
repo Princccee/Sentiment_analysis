@@ -1,7 +1,7 @@
 import os
-from wsgi import app
+from backend.app import app
 
 if __name__ == "__main__":
-    # Read the port from the environment variable, default to 5001 if not set
-    port = int(os.environ.get("PORT", 5001))
-    app.run(debug=True, port=port)
+    # Use environment variable for port, default to 5000
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=os.environ.get("FLASK_ENV") == "development", port=port)
