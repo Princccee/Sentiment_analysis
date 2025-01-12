@@ -1,5 +1,7 @@
+import os
 from backend.app import app
 
 if __name__ == "__main__":
-    app.run(debug=True)
-# This file is the entry point for the WSGI server. It imports the Flask app instance from backend/app.py and runs the app with debug mode enabled. This file is used to start the Flask server when deploying the application.
+    # Read the port from the environment variable, default to 5001 if not set
+    port = int(os.environ.get("PORT", 5001))
+    app.run(debug=True, port=port)

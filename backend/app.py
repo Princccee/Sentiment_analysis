@@ -158,6 +158,3 @@ def analyze():
         # "sentiment_lists": sentiment_lists,
         "overall_sentiment": overall_sentiment
     })
-
-if __name__ == "__main__":
-    app.run()
