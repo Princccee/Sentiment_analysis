@@ -17,7 +17,8 @@ if uploaded_file is not None:
         try:
             # Send the file to the backend
             response = requests.post(
-                "https://flask-backend-rxff.onrender.com/analyze",  # deployed Flask backend URL
+                # "http://127.0.0.1:5000/analyze",  # local server path
+                "https://flask-backend-rxff.onrender.com/analyze",  # remote server path
                 files={"file": ("transcript.txt", uploaded_file, "text/plain")}
             )
 

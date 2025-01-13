@@ -1,7 +1,11 @@
 import os
+import requests
 from flask import Flask, request, jsonify
-from transformers import pipeline
 from flask_cors import CORS
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -12,8 +16,14 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Create the folder if it doesn't exist
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# Initialize sentiment analysis pipeline
-sentiment_analyzer = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment-latest")
+# Hugging Face API URL and authentication
+API_URL = "https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment-latest"
+HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY") # Get the API key from environment variables
+if not HUGGINGFACE_API_KEY:
+    raise ValueError("HUGGINGFACE_API_KEY not found in environment variables")
+headers = {
+    "Authorization": f"Bearer {HUGGINGFACE_API_KEY}"
+}
 
 # Function to preprocess the transcript
 def preprocess_transcript(transcript):
@@ -25,7 +35,6 @@ def preprocess_transcript(transcript):
 
     for line in lines:
         line = line.strip()  # Remove leading/trailing whitespace
-        # print(f"Processing Line: '{line}'")  # Debug: Log each line being processed
 
         if line.startswith("[Sales Agent"):
             if current_speaker and current_statement:
@@ -44,29 +53,15 @@ def preprocess_transcript(transcript):
     if current_speaker and current_statement:
         conversation.append((current_speaker, " ".join(current_statement)))
 
-    # print("Parsed Conversation:", conversation)  # Debug
     return conversation
 
-# Function to analyze sentiment
-def analyze_sentiment(conversation):
-    """Analyze sentiment for each statement in the conversation."""
-    agent_sentiments = []
-    customer_sentiments = []
-
-    for speaker, text in conversation:
-        try:
-            # Get sentiment result for the statement
-            result = sentiment_analyzer(text)[0]
-            sentiment_label = result["label"].lower()
-
-            if speaker == "Sales Agent":
-                agent_sentiments.append({"statement": text, "sentiment": sentiment_label})
-            elif speaker == "Customer":
-                customer_sentiments.append({"statement": text, "sentiment": sentiment_label})
-        except Exception as e:
-            print(f"Error analyzing sentiment for: {text[:50]}... -> {e}")
-
-    return agent_sentiments, customer_sentiments
+# Function to analyze sentiment using the Hugging Face API
+def analyze_sentiment_via_api(text):
+    response = requests.post(API_URL, headers=headers, json={"inputs": text})
+    if response.status_code == 200:
+        return response.json()  # Get sentiment result from the API response
+    else:
+        raise Exception(f"API request failed with status code {response.status_code}")
 
 # Function to extract sentiment lists
 def extract_sentiment_lists(agent_sentiments, customer_sentiments):
@@ -82,21 +77,15 @@ def extract_sentiment_lists(agent_sentiments, customer_sentiments):
 # Function to compute overall sentiment
 def compute_overall_sentiment(agent_sentiments, customer_sentiments):
     """Compute the overall sentiment score for the conversation."""
-    # Assign numerical weights to each sentiment
     sentiment_weights = {"positive": 1, "neutral": 0, "negative": -1}
 
-    # Compute scores for agent and customer
     agent_score = sum(sentiment_weights[sentiment] for sentiment in agent_sentiments)
     customer_score = sum(sentiment_weights[sentiment] for sentiment in customer_sentiments)
 
-    # Total score
     total_score = agent_score + customer_score
-
-    # Normalize the score (optional)
     total_statements = len(agent_sentiments) + len(customer_sentiments)
     normalized_score = total_score / total_statements if total_statements > 0 else 0
 
-    # Determine overall sentiment based on the normalized score
     if normalized_score > 0:
         overall_sentiment = "positive"
     elif normalized_score < 0:
@@ -110,7 +99,7 @@ def compute_overall_sentiment(agent_sentiments, customer_sentiments):
         "overall_sentiment": overall_sentiment
     }
 
-
+# API route to analyze sentiment
 @app.route("/analyze", methods=["POST"])
 def analyze():
     """API route for analyzing sentiment."""
@@ -119,21 +108,16 @@ def analyze():
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files["file"]
-
-    # Check if the file is empty
     if file.filename == "":
         return jsonify({"error": "Empty file"}), 400
 
     # Save the file to the uploads folder
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
     file.save(file_path)
-    # print(f"File saved to {file_path}")  # Debug: Log the file path
 
-    # Read the saved file
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             transcript = f.read()
-        # print("Transcript Content:", transcript)  # Debug: Log raw content
     except Exception as e:
         return jsonify({"error": f"Failed to read the file: {e}"}), 500
 
@@ -142,24 +126,26 @@ def analyze():
     if not conversation:
         return jsonify({"error": "Parsing failed. Ensure the file has the correct format."}), 400
 
-    # Analyze sentiment
-    agent_sentiments, customer_sentiments = analyze_sentiment(conversation)
+    agent_sentiments = []
+    customer_sentiments = []
 
-    # Extract sentiment lists
+    for speaker, text in conversation:
+        try:
+            # Use external API to analyze sentiment
+            result = analyze_sentiment_via_api(text)
+            sentiment_label = result[0]["label"].lower()
+
+            if speaker == "Sales Agent":
+                agent_sentiments.append({"statement": text, "sentiment": sentiment_label})
+            elif speaker == "Customer":
+                customer_sentiments.append({"statement": text, "sentiment": sentiment_label})
+        except Exception as e:
+            print(f"Error analyzing sentiment for: {text[:50]}... -> {e}")
+
     sentiment_lists = extract_sentiment_lists(agent_sentiments, customer_sentiments)
+    overall_sentiment = compute_overall_sentiment(sentiment_lists["agent"], sentiment_lists["customer"])
 
-    # Compute overall sentiment
-    overall_sentiment = compute_overall_sentiment(
-        sentiment_lists["agent"], sentiment_lists["customer"]
-    )
-
-    # Return the results
-    return jsonify({
-        # "sales_agent_sentiments": agent_sentiments,
-        # "customer_sentiments": customer_sentiments,
-        # "sentiment_lists": sentiment_lists,
-        "overall_sentiment": overall_sentiment
-    })
+    return jsonify({"overall_sentiment": overall_sentiment})
 
 # Start the Flask app
 if __name__ == "__main__":
